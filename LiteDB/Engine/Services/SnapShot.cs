@@ -33,6 +33,7 @@ namespace LiteDB.Engine
         private readonly Dictionary<uint, BasePage> _localPages = new Dictionary<uint, BasePage>();
 
         // expose
+        public HeaderPage Header => _header;
         public LockMode Mode => _mode;
         public string CollectionName => _collectionName;
         public CollectionPage CollectionPage => _collectionPage;

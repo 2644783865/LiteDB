@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -25,6 +26,8 @@ namespace LiteDB.Engine
         private readonly int _containerSize;
         private readonly Done _done = new Done { Running = true };
 
+        private readonly CultureInfo _culture;
+        private readonly CollationOptions _collation;
         private readonly int _order;
 
         private readonly BufferSlice _buffer;
@@ -40,9 +43,11 @@ namespace LiteDB.Engine
         /// </summary>
         public IReadOnlyCollection<SortContainer> Containers => _containers;
 
-        public SortService(SortDisk disk, int order)
+        public SortService(SortDisk disk, CultureInfo culture, CollationOptions collation, int order)
         {
             _disk = disk;
+            _culture = culture;
+            _collation = collation;
             _order = order;
 
             _containerSize = disk.ContainerSize;
@@ -138,7 +143,7 @@ namespace LiteDB.Engine
                 {
                     foreach (var container in _containers.Where(x => !x.IsEOF))
                     {
-                        var diff = container.Current.Key.CompareTo(current.Current.Key);
+                        var diff = container.Current.Key.CompareTo(current.Current.Key, _culture, _collation);
 
                         if (diff == diffOrder)
                         {

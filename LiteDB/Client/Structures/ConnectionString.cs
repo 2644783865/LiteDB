@@ -1,6 +1,7 @@
 ﻿using LiteDB.Engine;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using static LiteDB.Constants;
 
 namespace LiteDB
@@ -53,6 +54,16 @@ namespace LiteDB
         public bool ReadOnly { get; set; } = false;
 
         /// <summary>
+        /// "culture": Culture name (eg: "pt-BR") (default: CultureInfo.CurrentCulture.Name)
+        /// </summary>
+        public string Culture { get; set; }
+
+        /// <summary>
+        /// "collation": Define how engine will compare strings
+        /// </summary>
+        public CollationOptions? Collation { get; set; }
+
+        /// <summary>
         /// "upgrade": Check if data file is an old version and convert before open (default: false)
         /// </summary>
         public bool Upgrade { get; set; } = false;
@@ -93,6 +104,8 @@ namespace LiteDB
             this.LimitSize = _values.GetFileSize(@"limit size", this.LimitSize);
             this.UtcDate = _values.GetValue("utc", this.UtcDate);
             this.ReadOnly = _values.GetValue("readonly", this.ReadOnly);
+            this.Culture = _values.GetValue<string>("collation", null);
+            this.Collation = _values.GetValue<CollationOptions?>("collation", null);
             this.Upgrade = _values.GetValue("upgrade", this.Upgrade);
         }
 
@@ -114,7 +127,9 @@ namespace LiteDB
                 LimitSize = this.LimitSize,
                 UtcDate = this.UtcDate,
                 Timeout = this.Timeout,
-                ReadOnly = this.ReadOnly
+                ReadOnly = this.ReadOnly,
+                Culture = this.Culture == null ? null : new CultureInfo(this.Culture),
+                Collation = this.Collation
             };
 
             // create engine implementation as Connection Type

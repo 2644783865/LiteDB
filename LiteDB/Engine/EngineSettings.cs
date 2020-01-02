@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -83,6 +84,16 @@ namespace LiteDB.Engine
         /// all dirty pages will be saved on log files and clean pages will be removed from cache
         /// </summary>
         public int MaxTransactionSize { get; set; } = MAX_TRANSACTION_SIZE;
+
+        /// <summary>
+        /// Define culture used in database. If not set will use thread current culture. There is no change after database creation
+        /// </summary>
+        public CultureInfo Culture { get; set; } = null;
+
+        /// <summary>
+        /// Define how database will compare strings. There is no change after database creation. Default: null (IgnoreCase)
+        /// </summary>
+        public CollationOptions? Collation { get; set; } = null;
 
         /// <summary>
         /// Get FlipCoin seed first number (to create always same sequence) - Null will create random seed

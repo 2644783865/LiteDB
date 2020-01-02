@@ -111,7 +111,7 @@ namespace LiteDB.Engine
                     cache = cache != null && cache.Position == cur.Next[i] ? cache : this.GetNode(cur.Next[i]);
 
                     // read next node to compare
-                    var diff = cache.Key.CompareTo(key);
+                    var diff = cache.Key.CompareTo(key, _snapshot.Header.Culture, _snapshot.Header.Collation);
 
                     // if unique and diff = 0, throw index exception (must rollback transaction - others nodes can be dirty)
                     if (diff == 0 && index.Unique) throw LiteException.IndexDuplicateKey(index.Name, key);

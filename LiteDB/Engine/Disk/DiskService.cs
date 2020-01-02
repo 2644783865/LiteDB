@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -50,7 +51,7 @@ namespace LiteDB.Engine
             {
                 LOG($"creating new database: '{Path.GetFileName(_dataFactory.Name)}'", "DISK");
 
-                this.Initialize(_dataPool.Writer, settings.InitialSize);
+                this.Initialize(_dataPool.Writer, settings);
             }
 
             // if not readonly, force open writable datafile
@@ -91,19 +92,23 @@ namespace LiteDB.Engine
         /// <summary>
         /// Create a new empty database (use synced mode)
         /// </summary>
-        private void Initialize(Stream stream, long initialSize)
+        private void Initialize(Stream stream, EngineSettings settings)
         {
+            // define culture/collaction in database creation (if passed)
+            var culture = settings.Culture ?? CultureInfo.CurrentCulture;
+            var collation = settings.Collation ?? CollationOptions.IgnoreCase;
+
             var buffer = new PageBuffer(new byte[PAGE_SIZE], 0, 0);
-            var header = new HeaderPage(buffer, 0);
+            var header = new HeaderPage(buffer, 0, culture, collation);
 
             // update buffer
             header.UpdateBuffer();
 
             stream.Write(buffer.Array, buffer.Offset, PAGE_SIZE);
 
-            if (initialSize > 0)
+            if (settings.InitialSize > 0)
             {
-                stream.SetLength(initialSize);
+                stream.SetLength(settings.InitialSize);
             }
 
             stream.FlushToDisk();

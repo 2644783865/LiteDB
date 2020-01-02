@@ -98,6 +98,27 @@ namespace LiteDB
             return Encoding.UTF8.GetString(buffer.Array, buffer.Offset + offset, count);
         }
 
+        public static string ReadCString(this BufferSlice buffer, int offset)
+        {
+            var pos = offset;
+            var count = 0;
+
+            while (pos < buffer.Count)
+            {
+                if (buffer[pos] == 0x00)
+                {
+                    return Encoding.UTF8.GetString(buffer.Array, buffer.Offset + offset, count);
+                }
+                else
+                {
+                    count++;
+                    pos++;
+                }
+            }
+
+            return null;
+        }
+
         /// <summary>
         /// Read any BsonValue. Use 1 byte for data type, 1 byte for length (optional), 0-255 bytes to value. 
         /// For document or array, use BufferReader
@@ -230,6 +251,12 @@ namespace LiteDB
         public static void Write(this BufferSlice buffer, string value, int offset)
         {
             Encoding.UTF8.GetBytes(value, 0, value.Length, buffer.Array, buffer.Offset + offset);
+        }
+
+        public static void WriteCString(this BufferSlice buffer, string value, int offset)
+        {
+            var position = Encoding.UTF8.GetBytes(value, 0, value.Length, buffer.Array, buffer.Offset + offset);
+            buffer[position] = 0x00;
         }
 
         /// <summary>
